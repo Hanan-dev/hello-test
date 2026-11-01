@@ -1,10 +1,13 @@
 const topicCategories = { All: "general", World: "general", Technology: "technology", Business: "business", Culture: "entertainment", Science: "science" };
 const categoryColors = { World: "world", Technology: "technology", Business: "business", Culture: "culture", Science: "science" };
-const state = { view: "for-you", topic: "All", query: "", sort: "recommended", country: "us", stories: [], saved: loadSaved(), loading: false, error: "", requestId: 0 };
+const topicNames = { general: "News", technology: "Technology", business: "Business", entertainment: "Culture", science: "Science" };
+const availableTopics = Object.keys(topicCategories).filter((topic) => topic !== "All");
+const state = { view: "for-you", topic: "All", favoriteTopics: loadFavoriteTopics(), query: "", sort: "recommended", country: "us", stories: [], saved: loadSaved(), loading: false, error: "", requestId: 0 };
 const grid = document.querySelector("#story-grid");
 const emptyState = document.querySelector("#empty-state");
 const searchInput = document.querySelector("#search-input");
 const dialog = document.querySelector("#story-dialog");
+const topicsDialog = document.querySelector("#topics-dialog");
 const feedMessage = document.querySelector("#feed-message");
 const feedMessageText = document.querySelector("#feed-message-text");
 const retryButton = document.querySelector("#retry-button");
@@ -17,6 +20,15 @@ function loadSaved() {
     return Array.isArray(saved) ? saved.filter((story) => story && typeof story === "object" && story.url) : [];
   }
   catch { return []; }
+}
+
+function loadFavoriteTopics() {
+  try {
+    const topics = JSON.parse(localStorage.getItem("signal-favorite-topics") || "[]");
+    return Array.isArray(topics) ? [...new Set(topics.filter((topic) => availableTopics.includes(topic)))] : [];
+  } catch {
+    return [];
+  }
 }
 
 function escapeHtml(value) {
@@ -44,7 +56,11 @@ function formatTime(value) {
 function normalizeArticle(article) {
   const url = safeUrl(article.url, true);
   if (!url || !article.title || article.title === "[Removed]") return null;
-  const category = state.topic === "All" ? "News" : state.topic;
+  const category = state.topic !== "All"
+    ? state.topic
+    : article.category === "general" && state.favoriteTopics.includes("World")
+      ? "World"
+      : topicNames[article.category] || "News";
   return {
     id: url,
     url,
@@ -68,6 +84,7 @@ function render() {
   const lead = state.view === "saved" ? null : visible[0];
   const leadSection = document.querySelector("#lead-story");
   leadSection.hidden = !lead;
+  document.querySelector("#lead-count").textContent = `01 / ${String(visible.length).padStart(2, "0")}`;
   if (lead) {
     document.querySelector("#lead-category").className = `category-tag tag-${lead.color}`;
     document.querySelector("#lead-category").textContent = lead.category.toUpperCase();
@@ -96,6 +113,21 @@ function render() {
     </article>`).join("");
 
   document.querySelector("#story-total").textContent = String(visible.length).padStart(2, "0");
+  document.querySelector("#stories-heading-label").textContent = state.view === "saved"
+    ? "Saved stories"
+    : state.view === "for-you" && state.topic === "All" && state.favoriteTopics.length
+      ? "Your daily mix"
+      : state.topic === "All" ? "Today's stories" : `${state.topic} stories`;
+  const subtitle = document.querySelector("#welcome-subtitle");
+  if (state.view === "saved") {
+    subtitle.textContent = "Stories you’ve saved to read later.";
+  } else if (state.view === "for-you" && state.topic === "All" && state.favoriteTopics.length) {
+    subtitle.textContent = `A thoughtful mix of ${state.favoriteTopics.join(", ")} stories, picked for you.`;
+  } else if (state.view === "for-you" && state.topic === "All") {
+    subtitle.textContent = "Choose favorite topics to make your daily mix yours.";
+  } else {
+    subtitle.textContent = "Here’s what’s worth your attention today.";
+  }
   document.querySelector("#feed-count").textContent = state.stories.length || "";
   document.querySelector("#saved-count").textContent = state.saved.length || "";
   grid.hidden = cardStories.length === 0;
@@ -107,7 +139,16 @@ function render() {
   document.querySelector("#briefing-list").innerHTML = visible.slice(0, 3).map((story, index) => `<li><span class="brief-number">${String(index + 1).padStart(2, "0")}</span><p><strong>${escapeHtml(story.title)}</strong><small>${escapeHtml(story.source)} · ${escapeHtml(formatTime(story.publishedAt).toLowerCase())}</small></p></li>`).join("");
   document.querySelector("#more-headlines").innerHTML = visible.slice(3, 6).map((story, index) => `<a href="${escapeHtml(story.url)}" class="most-read-item" target="_blank" rel="noreferrer"><span class="rank">${String(index + 1).padStart(2, "0")}</span><span><strong>${escapeHtml(story.title)}</strong><small>${escapeHtml(story.source)} · ${escapeHtml(formatTime(story.publishedAt).toLowerCase())}</small></span></a>`).join("");
   document.querySelectorAll(".nav-item").forEach((button) => button.classList.toggle("is-active", button.dataset.view === state.view));
-  document.querySelectorAll(".topic-item").forEach((button) => button.classList.toggle("is-active", button.dataset.topic === state.topic));
+  document.querySelectorAll(".topic-item").forEach((button) => {
+    const isActive = button.dataset.topic === state.topic;
+    const isFavorite = state.favoriteTopics.includes(button.dataset.topic);
+    button.classList.toggle("is-active", isActive);
+    button.classList.toggle("is-favorite", isFavorite);
+    button.setAttribute("aria-pressed", String(isActive));
+    if (button.dataset.topic !== "All") {
+      button.setAttribute("aria-label", `${button.dataset.topic}${isFavorite ? ", favorite topic" : ""}`);
+    }
+  });
   if (window.lucide) window.lucide.createIcons();
 }
 
@@ -116,7 +157,13 @@ async function fetchStories() {
   state.loading = true;
   state.error = "";
   render();
-  const parameters = new URLSearchParams({ country: state.country, category: topicCategories[state.topic] || "general" });
+  const useFavorites = state.view === "for-you" && state.topic === "All" && state.favoriteTopics.length > 0;
+  const parameters = new URLSearchParams({ country: state.country });
+  if (useFavorites) {
+    parameters.set("categories", state.favoriteTopics.map((topic) => topicCategories[topic]).join(","));
+  } else {
+    parameters.set("category", topicCategories[state.topic] || "general");
+  }
   if (state.query.trim()) parameters.set("q", state.query.trim());
   try {
     const response = await fetch(`/api/news?${parameters.toString()}`);
@@ -175,15 +222,46 @@ function openStory(id) {
   dialog.showModal();
 }
 
+function openTopicsDialog() {
+  document.querySelectorAll('input[name="favorite-topic"]').forEach((input) => {
+    input.checked = state.favoriteTopics.includes(input.value);
+  });
+  topicsDialog.showModal();
+}
+
 const today = new Date();
 document.querySelector("#today-date").textContent = new Intl.DateTimeFormat("en", { weekday: "short", month: "short", day: "numeric" }).format(today).toUpperCase();
 document.querySelector("#edition-date").textContent = new Intl.DateTimeFormat("en", { weekday: "long", month: "long", day: "numeric" }).format(today).toUpperCase();
 document.querySelectorAll(".nav-item").forEach((button) => button.addEventListener("click", () => {
   state.view = button.dataset.view;
   if (state.view === "saved") { state.loading = false; state.error = ""; render(); }
-  else { state.sort = state.view === "latest" ? "latest" : "recommended"; document.querySelector("#sort-select").value = state.sort; fetchStories(); }
+  else {
+    state.sort = state.view === "latest" ? "latest" : "recommended";
+    if (state.view === "for-you") state.topic = "All";
+    document.querySelector("#sort-select").value = state.sort;
+    fetchStories();
+  }
 }));
 document.querySelectorAll(".topic-item").forEach((button) => button.addEventListener("click", () => { state.topic = button.dataset.topic; state.view = "for-you"; fetchStories(); }));
+document.querySelector("#manage-topics").addEventListener("click", openTopicsDialog);
+document.querySelector("#topics-dialog-close").addEventListener("click", () => topicsDialog.close());
+document.querySelector("#topics-cancel").addEventListener("click", () => topicsDialog.close());
+document.querySelector("#topics-form").addEventListener("submit", (event) => {
+  event.preventDefault();
+  const favoriteTopics = [...document.querySelectorAll('input[name="favorite-topic"]:checked')].map((input) => input.value);
+  try {
+    localStorage.setItem("signal-favorite-topics", JSON.stringify(favoriteTopics));
+  } catch {
+    showToast("Could not save your topics in this browser");
+    return;
+  }
+  state.favoriteTopics = favoriteTopics;
+  state.topic = "All";
+  state.view = "for-you";
+  document.querySelector("#sort-select").value = "recommended";
+  topicsDialog.close();
+  fetchStories();
+});
 searchInput.addEventListener("input", () => {
   state.query = searchInput.value;
   if (state.view === "saved") { render(); return; }
@@ -211,7 +289,10 @@ document.querySelector("#lead-story").addEventListener("click", (event) => {
 });
 document.addEventListener("keydown", (event) => {
   if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") { event.preventDefault(); searchInput.focus(); }
-  if (event.key === "Escape" && dialog.open) dialog.close();
+  if (event.key === "Escape" && (dialog.open || topicsDialog.open)) {
+    if (dialog.open) dialog.close();
+    if (topicsDialog.open) topicsDialog.close();
+  }
 });
 
 render();

@@ -31,7 +31,7 @@
           <button class="nav-item" data-view="latest"><i data-lucide="clock-3"></i><span>Latest</span></button>
           <button class="nav-item" data-view="saved"><i data-lucide="bookmark"></i><span>Saved stories</span><span class="saved-count" id="saved-count"></span></button>
         </nav>
-        <p class="sidebar-label topics-label">TOPICS</p>
+        <p class="sidebar-label topics-label">TOPICS<button class="topic-manage-button" id="manage-topics" type="button"><i data-lucide="sliders-horizontal"></i><span>Personalize</span></button></p>
         <nav class="topic-nav" aria-label="Filter by topic">
           <button class="topic-item is-active" data-topic="All"><span class="topic-dot dot-all"></span>All stories</button>
           <button class="topic-item" data-topic="World"><span class="topic-dot dot-world"></span>World</button>
@@ -46,7 +46,7 @@
 
       <main class="feed-main">
         <section class="welcome-row" aria-label="Today's edition">
-          <div><p class="eyebrow" id="edition-date"></p><h1 id="feed-heading">Good morning, Hanan<span>.</span></h1><p class="welcome-subtitle">Here’s what’s worth your attention today.</p></div>
+          <div><p class="eyebrow" id="edition-date"></p><h1 id="feed-heading">Good morning, Hanan<span>.</span></h1><p class="welcome-subtitle" id="welcome-subtitle">Here’s what’s worth your attention today.</p></div>
           <button class="briefing-button" id="briefing-button" type="button"><i data-lucide="headphones"></i><span>Listen to briefing</span><i data-lucide="play" class="play-icon"></i></button>
         </section>
         <div class="feed-message" id="feed-message" role="status" aria-live="polite"><span id="feed-message-text">Fetching the latest headlines…</span><button id="retry-button" type="button" hidden>Try again</button></div>
@@ -58,10 +58,10 @@
             <p class="lead-deck" id="lead-deck"></p>
             <div class="byline"><div class="author-avatar" id="lead-initials"></div><span><strong id="lead-author"></strong><small id="lead-source"></small></span><button class="icon-button save-button" id="lead-save" data-save="" type="button" aria-label="Save top story"><i data-lucide="bookmark"></i></button></div>
           </div>
-          <div class="lead-image-wrap"><img class="lead-image" id="lead-image" alt="" /><div class="image-caption"><span>TOP STORY</span><span>01 / 20</span></div></div>
+          <div class="lead-image-wrap"><img class="lead-image" id="lead-image" alt="" /><div class="image-caption"><span>TOP STORY</span><span id="lead-count">01 / 20</span></div></div>
         </section>
 
-        <div class="section-heading"><div><p class="eyebrow">THE REST OF THE PICTURE</p><h2 id="stories-heading">Today's stories <span class="story-total" id="story-total">00</span></h2></div><div class="feed-controls"><label class="country-control">Country<select id="country-select" aria-label="Choose country"><option value="us">United States</option><option value="gb">United Kingdom</option><option value="ca">Canada</option><option value="au">Australia</option><option value="in">India</option></select></label><label class="sort-control">Sort by<select id="sort-select" aria-label="Sort stories"><option value="recommended">Recommended</option><option value="latest">Latest</option></select><i data-lucide="chevron-down"></i></label></div></div>
+        <div class="section-heading"><div><p class="eyebrow">THE REST OF THE PICTURE</p><h2 id="stories-heading"><span id="stories-heading-label">Today's stories</span> <span class="story-total" id="story-total">00</span></h2></div><div class="feed-controls"><label class="country-control">Country<select id="country-select" aria-label="Choose country"><option value="us">United States</option><option value="gb">United Kingdom</option><option value="ca">Canada</option><option value="au">Australia</option><option value="in">India</option></select></label><label class="sort-control">Sort by<select id="sort-select" aria-label="Sort stories"><option value="recommended">Recommended</option><option value="latest">Latest</option></select><i data-lucide="chevron-down"></i></label></div></div>
 
         <section class="story-grid" id="story-grid" aria-labelledby="stories-heading"></section>
         <div class="empty-state" id="empty-state" hidden><i class="empty-state-icon" data-lucide="newspaper" aria-hidden="true"></i><h3>No stories found</h3><p>Try a different search or topic.</p><button id="clear-filters" type="button">Clear filters</button></div>
@@ -85,6 +85,24 @@
     </div>
 
     <dialog class="story-dialog" id="story-dialog" aria-labelledby="dialog-title"><button class="dialog-close icon-button" id="dialog-close" type="button" aria-label="Close story"><i data-lucide="x"></i></button><span class="category-tag" id="dialog-category"></span><h2 id="dialog-title"></h2><p id="dialog-deck"></p><div class="dialog-byline" id="dialog-byline"></div><a class="dialog-source" id="dialog-source" href="#" target="_blank" rel="noreferrer">Read full article <i data-lucide="arrow-up-right"></i></a></dialog>
+    <dialog class="topics-dialog" id="topics-dialog" aria-labelledby="topics-dialog-title">
+      <form id="topics-form">
+        <div class="topics-dialog-heading"><span class="topics-dialog-icon"><i data-lucide="sparkles"></i></span><button class="dialog-close icon-button" id="topics-dialog-close" type="button" aria-label="Close topic preferences"><i data-lucide="x"></i></button></div>
+        <p class="eyebrow">YOUR EDITION</p>
+        <h2 id="topics-dialog-title">Make it yours<span>.</span></h2>
+        <p class="topics-dialog-description">Pick the topics you care about. We’ll bring their headlines together in your For you feed.</p>
+        <fieldset class="topic-choices">
+          <legend>Choose any topics</legend>
+          <label class="topic-choice"><input type="checkbox" name="favorite-topic" value="World" /><span class="topic-dot dot-world"></span><span><strong>World</strong><small>Global news and current affairs</small></span><i data-lucide="check"></i></label>
+          <label class="topic-choice"><input type="checkbox" name="favorite-topic" value="Technology" /><span class="topic-dot dot-tech"></span><span><strong>Technology</strong><small>Tech, digital life and innovation</small></span><i data-lucide="check"></i></label>
+          <label class="topic-choice"><input type="checkbox" name="favorite-topic" value="Business" /><span class="topic-dot dot-business"></span><span><strong>Business</strong><small>Markets, companies and the economy</small></span><i data-lucide="check"></i></label>
+          <label class="topic-choice"><input type="checkbox" name="favorite-topic" value="Culture" /><span class="topic-dot dot-culture"></span><span><strong>Culture</strong><small>Arts, entertainment and ideas</small></span><i data-lucide="check"></i></label>
+          <label class="topic-choice"><input type="checkbox" name="favorite-topic" value="Science" /><span class="topic-dot dot-science"></span><span><strong>Science</strong><small>Discoveries, health and the natural world</small></span><i data-lucide="check"></i></label>
+        </fieldset>
+        <p class="topics-dialog-hint">You can change your picks any time. No selection? We’ll show general headlines.</p>
+        <div class="topics-dialog-actions"><button class="topics-cancel" id="topics-cancel" type="button">Cancel</button><button class="topics-save" type="submit">Save my topics</button></div>
+      </form>
+    </dialog>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
   </body>
 </html>
