@@ -13,3 +13,4 @@ Hanan Ahmed
 4. Open [http://127.0.0.1:8000](http://127.0.0.1:8000).
 
 The local server keeps the API key out of browser code and sends requests to NewsAPI's Top Headlines endpoint. The app supports country, topic, keyword search, sorting, and locally saved stories. NewsAPI plan restrictions apply.
+Aitisal
