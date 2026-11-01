@@ -31,14 +31,14 @@
           <button class="nav-item" data-view="latest"><i data-lucide="clock-3"></i><span>Latest</span></button>
           <button class="nav-item" data-view="saved"><i data-lucide="bookmark"></i><span>Saved stories</span><span class="saved-count" id="saved-count"></span></button>
         </nav>
-        <p class="sidebar-label topics-label">TOPICS<button class="topic-manage-button" id="manage-topics" type="button"><i data-lucide="sliders-horizontal"></i><span>Personalize</span></button></p>
+        <p class="sidebar-label topics-label">TOPICS<button class="topic-manage-button" id="manage-topics" type="button" aria-label="Personalize topics" title="Personalize topics"><i data-lucide="list-filter" aria-hidden="true"></i></button></p>
         <nav class="topic-nav" aria-label="Filter by topic">
-          <button class="topic-item is-active" data-topic="All"><span class="topic-dot dot-all"></span>All stories</button>
-          <button class="topic-item" data-topic="World"><span class="topic-dot dot-world"></span>World</button>
-          <button class="topic-item" data-topic="Technology"><span class="topic-dot dot-tech"></span>Technology</button>
-          <button class="topic-item" data-topic="Business"><span class="topic-dot dot-business"></span>Business</button>
-          <button class="topic-item" data-topic="Culture"><span class="topic-dot dot-culture"></span>Culture</button>
-          <button class="topic-item" data-topic="Science"><span class="topic-dot dot-science"></span>Science</button>
+          <button class="topic-item is-active" data-topic="All"><i class="topic-icon" data-lucide="newspaper" aria-hidden="true"></i><span>All stories</span></button>
+          <button class="topic-item" data-topic="World"><i class="topic-icon" data-lucide="globe" aria-hidden="true"></i><span>World</span></button>
+          <button class="topic-item" data-topic="Technology"><i class="topic-icon" data-lucide="cpu" aria-hidden="true"></i><span>Technology</span></button>
+          <button class="topic-item" data-topic="Business"><i class="topic-icon" data-lucide="briefcase" aria-hidden="true"></i><span>Business</span></button>
+          <button class="topic-item" data-topic="Culture"><i class="topic-icon" data-lucide="palette" aria-hidden="true"></i><span>Culture</span></button>
+          <button class="topic-item" data-topic="Science"><i class="topic-icon" data-lucide="flask-conical" aria-hidden="true"></i><span>Science</span></button>
         </nav>
         <div class="sidebar-note"><i data-lucide="sparkles"></i><p><strong>A little less noise.</strong><br />A thoughtful mix of stories, picked for you.</p></div>
         <div class="sidebar-footer"><span>LIVE EDITION</span><span>NEWSAPI</span></div>
@@ -93,11 +93,11 @@
         <p class="topics-dialog-description">Pick the topics you care about. We’ll bring their headlines together in your For you feed.</p>
         <fieldset class="topic-choices">
           <legend>Choose any topics</legend>
-          <label class="topic-choice"><input type="checkbox" name="favorite-topic" value="World" /><span class="topic-dot dot-world"></span><span><strong>World</strong><small>Global news and current affairs</small></span><i data-lucide="check"></i></label>
-          <label class="topic-choice"><input type="checkbox" name="favorite-topic" value="Technology" /><span class="topic-dot dot-tech"></span><span><strong>Technology</strong><small>Tech, digital life and innovation</small></span><i data-lucide="check"></i></label>
-          <label class="topic-choice"><input type="checkbox" name="favorite-topic" value="Business" /><span class="topic-dot dot-business"></span><span><strong>Business</strong><small>Markets, companies and the economy</small></span><i data-lucide="check"></i></label>
-          <label class="topic-choice"><input type="checkbox" name="favorite-topic" value="Culture" /><span class="topic-dot dot-culture"></span><span><strong>Culture</strong><small>Arts, entertainment and ideas</small></span><i data-lucide="check"></i></label>
-          <label class="topic-choice"><input type="checkbox" name="favorite-topic" value="Science" /><span class="topic-dot dot-science"></span><span><strong>Science</strong><small>Discoveries, health and the natural world</small></span><i data-lucide="check"></i></label>
+          <label class="topic-choice"><input type="checkbox" name="favorite-topic" value="World" /><i class="topic-icon" data-lucide="globe" aria-hidden="true"></i><span><strong>World</strong><small>Global news and current affairs</small></span><i class="topic-choice-check" data-lucide="check" aria-hidden="true"></i></label>
+          <label class="topic-choice"><input type="checkbox" name="favorite-topic" value="Technology" /><i class="topic-icon" data-lucide="cpu" aria-hidden="true"></i><span><strong>Technology</strong><small>Tech, digital life and innovation</small></span><i class="topic-choice-check" data-lucide="check" aria-hidden="true"></i></label>
+          <label class="topic-choice"><input type="checkbox" name="favorite-topic" value="Business" /><i class="topic-icon" data-lucide="briefcase" aria-hidden="true"></i><span><strong>Business</strong><small>Markets, companies and the economy</small></span><i class="topic-choice-check" data-lucide="check" aria-hidden="true"></i></label>
+          <label class="topic-choice"><input type="checkbox" name="favorite-topic" value="Culture" /><i class="topic-icon" data-lucide="palette" aria-hidden="true"></i><span><strong>Culture</strong><small>Arts, entertainment and ideas</small></span><i class="topic-choice-check" data-lucide="check" aria-hidden="true"></i></label>
+          <label class="topic-choice"><input type="checkbox" name="favorite-topic" value="Science" /><i class="topic-icon" data-lucide="flask-conical" aria-hidden="true"></i><span><strong>Science</strong><small>Discoveries, health and the natural world</small></span><i class="topic-choice-check" data-lucide="check" aria-hidden="true"></i></label>
         </fieldset>
         <p class="topics-dialog-hint">You can change your picks any time. No selection? We’ll show general headlines.</p>
         <div class="topics-dialog-actions"><button class="topics-cancel" id="topics-cancel" type="button">Cancel</button><button class="topics-save" type="submit">Save my topics</button></div>
