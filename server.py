@@ -1,3 +1,4 @@
+from concurrent.futures import ThreadPoolExecutor
 import json
 import os
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -11,6 +12,7 @@ ROOT = Path(__file__).resolve().parent
 API_URL = "https://newsapi.org/v2/top-headlines"
 VALID_COUNTRIES = {"us", "gb", "ca", "au", "in"}
 VALID_CATEGORIES = {"business", "entertainment", "general", "health", "science", "sports", "technology"}
+MAX_MERGED_ARTICLES = 50
 STATIC_FILES = {
     "/": ("index.html", "text/html; charset=utf-8"),
     "/index.html": ("index.html", "text/html; charset=utf-8"),
@@ -29,6 +31,49 @@ def load_env_file():
             continue
         name, value = line.split("=", 1)
         os.environ.setdefault(name.strip(), value.strip().strip("\"'"))
+
+
+def requested_categories(query):
+    selected = query.get("categories")
+    if selected:
+        categories = [
+            category.strip().lower()
+            for value in selected
+            for category in value.split(",")
+            if category.strip()
+        ]
+    else:
+        categories = [query.get("category", ["general"])[0].strip().lower()]
+
+    categories = list(dict.fromkeys(categories))
+    if not categories or any(category not in VALID_CATEGORIES for category in categories):
+        raise ValueError("Unsupported country or category.")
+    return categories
+
+
+def merge_category_articles(categories, payloads):
+    articles_by_url = {}
+    total_results = 0
+    for category, payload in zip(categories, payloads):
+        total_results += payload.get("totalResults", 0)
+        for article in payload.get("articles", []):
+            url = article.get("url")
+            if not url or url in articles_by_url:
+                continue
+            categorized_article = dict(article)
+            categorized_article["category"] = category
+            articles_by_url[url] = categorized_article
+
+    articles = sorted(
+        articles_by_url.values(),
+        key=lambda article: article.get("publishedAt") or "",
+        reverse=True,
+    )
+    return {
+        "status": "ok",
+        "totalResults": total_results,
+        "articles": articles[:MAX_MERGED_ARTICLES],
+    }
 
 
 class NewsFeedHandler(BaseHTTPRequestHandler):
@@ -70,26 +115,23 @@ class NewsFeedHandler(BaseHTTPRequestHandler):
             return
 
         country = query.get("country", ["us"])[0].lower()
-        category = query.get("category", [""])[0].lower()
         search_term = query.get("q", [""])[0].strip()[:200]
-        if country not in VALID_COUNTRIES or (category and category not in VALID_CATEGORIES):
+        try:
+            categories = requested_categories(query)
+        except ValueError as error:
+            self.send_json(400, {"message": str(error)})
+            return
+        if country not in VALID_COUNTRIES:
             self.send_json(400, {"message": "Unsupported country or category."})
             return
 
-        parameters = {"country": country, "pageSize": 20}
-        if category:
-            parameters["category"] = category
-        if search_term:
-            parameters["q"] = search_term
-
-        request = Request(
-            "{}?{}".format(API_URL, urlencode(parameters)),
-            headers={"X-Api-Key": api_key, "Accept": "application/json"},
-        )
         try:
-            with urlopen(request, timeout=15) as response:
-                payload = json.loads(response.read().decode("utf-8"))
-                self.send_json(response.status, payload)
+            with ThreadPoolExecutor(max_workers=min(len(categories), 4)) as executor:
+                payloads = list(executor.map(
+                    lambda category: self.fetch_category(api_key, country, category, search_term),
+                    categories,
+                ))
+            self.send_json(200, merge_category_articles(categories, payloads))
         except HTTPError as error:
             try:
                 payload = json.loads(error.read().decode("utf-8"))
@@ -100,6 +142,17 @@ class NewsFeedHandler(BaseHTTPRequestHandler):
             self.send_json(502, {"message": "Could not reach NewsAPI. Check your connection and try again."})
         except (ValueError, UnicodeDecodeError):
             self.send_json(502, {"message": "NewsAPI returned an unreadable response."})
+
+    def fetch_category(self, api_key, country, category, search_term):
+        parameters = {"country": country, "pageSize": 20, "category": category}
+        if search_term:
+            parameters["q"] = search_term
+        request = Request(
+            "{}?{}".format(API_URL, urlencode(parameters)),
+            headers={"X-Api-Key": api_key, "Accept": "application/json"},
+        )
+        with urlopen(request, timeout=15) as response:
+            return json.loads(response.read().decode("utf-8"))
 
     def log_message(self, format_string, *args):
         print("{} - {}".format(self.address_string(), format_string % args))
