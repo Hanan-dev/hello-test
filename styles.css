@@ -49,8 +49,7 @@ kbd { padding: 2px 4px; border: 1px solid #e2e4dd; border-radius: 3px; white-spa
 .topics-label { margin-top: 34px; }
 .topic-item { height: 34px; gap: 10px; font-size: 11px; }
 .topic-item.is-active { color: #2f533f; font-weight: 700; }
-.topic-dot { width: 7px; height: 7px; border-radius: 50%; background: #9aa59a; }
-.dot-world { background: #d48861; }.dot-tech { background: #6d91b3; }.dot-business { background: #8f9d63; }.dot-culture { background: #b87f96; }.dot-science { background: #69a19b; }
+.topic-icon { width: 16px; height: 16px; flex: none; color: #777; stroke-width: 1.8; }
 .sidebar-note { display: flex; gap: 10px; margin: 38px 3px 0; padding: 13px 11px; border: 1px solid #e5e6de; border-radius: 5px; color: #788075; }
 .sidebar-note svg { width: 14px; height: 14px; color: #a78142; flex: none; }
 .sidebar-note p { margin: 0; font-size: 10px; line-height: 1.7; }.sidebar-note strong { color: #485044; font-size: 10px; }
@@ -202,6 +201,17 @@ kbd { padding: 2px 4px; border: 1px solid #e2e4dd; border-radius: 3px; white-spa
 .nav-item:hover, .topic-item:hover { background: #ededed; }
 .nav-item.is-active { color: var(--ink); background: var(--accent-soft); }
 .topic-item.is-active { color: var(--ink); }
+.topic-item.is-active .topic-icon { color: var(--ink); }
+.search-box {
+  border-radius: 999px;
+  transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease;
+}
+.search-box:focus-within {
+  border-color: #dfb62e;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(242, 200, 75, .2);
+}
+.search-box input:focus-visible { outline: none; }
 .sidebar-note { border-color: var(--rule); border-radius: 10px; }
 .sidebar-note svg { color: #b58400; }
 .sidebar-note strong { color: var(--ink); }
@@ -277,20 +287,24 @@ kbd { padding: 2px 4px; border: 1px solid #e2e4dd; border-radius: 3px; white-spa
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 7px;
-  min-height: 34px;
+  width: 30px;
+  height: 30px;
+  flex: none;
   margin: 0;
-  padding: 0 8px;
-  border: 1px solid #e8dfbe;
-  border-radius: 999px;
-  background: #fff9e6;
-  color: #5b480e;
-  font-size: 10px;
-  font-weight: 600;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: transparent;
+  color: #686868;
   cursor: pointer;
 }
-.topic-manage-button svg { width: 13px; height: 13px; }
-.topic-manage-button:hover { border-color: var(--accent); background: var(--accent-soft); }
+.topic-manage-button svg { width: 16px; height: 16px; }
+.topic-manage-button:hover, .topic-manage-button:focus-visible {
+  border-color: #e7d48e;
+  background: var(--accent-soft);
+  color: #5b480e;
+}
+.topic-manage-button:focus-visible { outline: 2px solid #b58400; outline-offset: 2px; }
 .topic-item.is-favorite::after {
   content: "★";
   margin-left: auto;
@@ -344,13 +358,13 @@ kbd { padding: 2px 4px; border: 1px solid #e2e4dd; border-radius: 3px; white-spa
 .topic-choice:hover { border-color: #e7d48e; }
 .topic-choice:has(input:checked) { border-color: #e7cd69; background: #fff9e6; }
 .topic-choice input { position: absolute; width: 1px; height: 1px; opacity: 0; }
-.topic-choice input:focus-visible + .topic-dot { outline: 2px solid #171717; outline-offset: 3px; }
-.topic-choice > .topic-dot { width: 9px; height: 9px; flex: none; }
-.topic-choice > span:nth-of-type(2) { display: grid; gap: 4px; }
+.topic-choice input:focus-visible ~ .topic-icon { outline: 2px solid #171717; outline-offset: 3px; border-radius: 3px; }
+.topic-choice > .topic-icon { width: 18px; height: 18px; flex: none; color: #777; stroke-width: 1.8; }
+.topic-choice > span { display: grid; gap: 4px; }
 .topic-choice strong { font-size: 12px; }
 .topic-choice small { color: #858585; font-size: 10px; }
-.topic-choice > svg { width: 16px; height: 16px; margin-left: auto; color: #8c6b00; opacity: 0; }
-.topic-choice:has(input:checked) > svg { opacity: 1; }
+.topic-choice-check { width: 16px; height: 16px; flex: none; margin-left: auto; color: #8c6b00; opacity: 0; }
+.topic-choice:has(input:checked) .topic-choice-check { opacity: 1; }
 .topics-dialog-hint { margin: 14px 0 0; color: #888; font-size: 10px; line-height: 1.5; }
 .topics-dialog-actions { display: flex; justify-content: flex-end; gap: 9px; margin-top: 21px; }
 .topics-dialog-actions button { min-height: 39px; padding: 0 16px; border-radius: 999px; font-size: 11px; font-weight: 600; cursor: pointer; }
