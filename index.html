@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f6f6f2" />
+    <meta name="description" content="A calmer, clearer way to keep up with the stories shaping your day." />
+    <title>Signal — your daily briefing</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="wordmark" href="#top" aria-label="Signal home"><span class="wordmark-icon"><i data-lucide="radio"></i></span>signal<span class="wordmark-period">.</span></a>
+      <div class="edition-label"><span class="live-dot"></span> LIVE HEADLINES <span class="edition-divider">/</span> <span id="today-date"></span></div>
+      <div class="topbar-actions">
+        <label class="search-box" for="search-input"><i data-lucide="search"></i><input id="search-input" type="search" placeholder="Search stories" autocomplete="off" /><kbd>⌘ K</kbd></label>
+        <button class="avatar-button" type="button" aria-label="Your profile">HA</button>
+      </div>
+    </header>
+
+    <div class="app-shell" id="top">
+      <aside class="sidebar" aria-label="Feed navigation">
+        <p class="sidebar-label">YOUR EDITION</p>
+        <nav class="primary-nav" aria-label="Your edition">
+          <button class="nav-item is-active" data-view="for-you"><i data-lucide="panels-top-left"></i><span>For you</span><span class="nav-count" id="feed-count"></span></button>
+          <button class="nav-item" data-view="latest"><i data-lucide="clock-3"></i><span>Latest</span></button>
+          <button class="nav-item" data-view="saved"><i data-lucide="bookmark"></i><span>Saved stories</span><span class="saved-count" id="saved-count"></span></button>
+        </nav>
+        <p class="sidebar-label topics-label">TOPICS</p>
+        <nav class="topic-nav" aria-label="Filter by topic">
+          <button class="topic-item is-active" data-topic="All"><span class="topic-dot dot-all"></span>All stories</button>
+          <button class="topic-item" data-topic="World"><span class="topic-dot dot-world"></span>World</button>
+          <button class="topic-item" data-topic="Technology"><span class="topic-dot dot-tech"></span>Technology</button>
+          <button class="topic-item" data-topic="Business"><span class="topic-dot dot-business"></span>Business</button>
+          <button class="topic-item" data-topic="Culture"><span class="topic-dot dot-culture"></span>Culture</button>
+          <button class="topic-item" data-topic="Science"><span class="topic-dot dot-science"></span>Science</button>
+        </nav>
+        <div class="sidebar-note"><i data-lucide="sparkles"></i><p><strong>A little less noise.</strong><br />A thoughtful mix of stories, picked for you.</p></div>
+        <div class="sidebar-footer"><span>LIVE EDITION</span><span>NEWSAPI</span></div>
+      </aside>
+
+      <main class="feed-main">
+        <section class="welcome-row" aria-label="Today's edition">
+          <div><p class="eyebrow" id="edition-date"></p><h1 id="feed-heading">Good morning, Hanan<span>.</span></h1><p class="welcome-subtitle">Here’s what’s worth your attention today.</p></div>
+          <button class="briefing-button" id="briefing-button" type="button"><i data-lucide="headphones"></i><span>Listen to briefing</span><i data-lucide="play" class="play-icon"></i></button>
+        </section>
+        <div class="feed-message" id="feed-message" role="status" aria-live="polite"><span id="feed-message-text">Fetching the latest headlines…</span><button id="retry-button" type="button" hidden>Try again</button></div>
+
+        <section class="lead-story" id="lead-story" aria-label="Top story" hidden>
+          <div class="lead-copy">
+            <div class="story-meta"><span class="category-tag" id="lead-category"></span><span id="lead-time"></span></div>
+            <h2 id="lead-title"></h2>
+            <p class="lead-deck" id="lead-deck"></p>
+            <div class="byline"><div class="author-avatar" id="lead-initials"></div><span><strong id="lead-author"></strong><small id="lead-source"></small></span><button class="icon-button save-button" id="lead-save" data-save="" type="button" aria-label="Save top story"><i data-lucide="bookmark"></i></button></div>
+          </div>
+          <div class="lead-image-wrap"><img class="lead-image" id="lead-image" alt="" /><div class="image-caption"><span>TOP STORY</span><span>01 / 20</span></div></div>
+        </section>
+
+        <div class="section-heading"><div><p class="eyebrow">THE REST OF THE PICTURE</p><h2 id="stories-heading">Today's stories <span class="story-total" id="story-total">00</span></h2></div><div class="feed-controls"><label class="country-control">Country<select id="country-select" aria-label="Choose country"><option value="us">United States</option><option value="gb">United Kingdom</option><option value="ca">Canada</option><option value="au">Australia</option><option value="in">India</option></select></label><label class="sort-control">Sort by<select id="sort-select" aria-label="Sort stories"><option value="recommended">Recommended</option><option value="latest">Latest</option></select><i data-lucide="chevron-down"></i></label></div></div>
+
+        <section class="story-grid" id="story-grid" aria-labelledby="stories-heading"></section>
+        <div class="empty-state" id="empty-state" hidden><i class="empty-state-icon" data-lucide="newspaper" aria-hidden="true"></i><h3>No stories found</h3><p>Try a different search or topic.</p><button id="clear-filters" type="button">Clear filters</button></div>
+        <div class="feed-end"><span></span><p>YOU'RE ALL CAUGHT UP</p><span></span></div>
+      </main>
+
+      <aside class="right-rail" aria-label="Your reading briefing">
+        <section class="briefing-card">
+          <div class="rail-title"><span>THE 5-MINUTE BRIEF</span><i data-lucide="arrow-up-right"></i></div>
+          <h2>In this edition<span>.</span></h2>
+          <p class="briefing-intro">A quick scan of the latest headlines.</p>
+          <ol class="briefing-list" id="briefing-list"></ol>
+          <button class="text-action" type="button" id="read-briefing">Read the full briefing <i data-lucide="arrow-right"></i></button>
+        </section>
+        <section class="most-read">
+          <div class="rail-title"><span>MORE HEADLINES</span><span class="trending-label"><i data-lucide="trending-up"></i> TODAY</span></div>
+          <div id="more-headlines"></div>
+        </section>
+        <div class="rail-quote"><span class="quote-mark">“</span><blockquote>A well-informed mind is a quieter one.</blockquote><span class="quote-credit">THE SIGNAL NOTEBOOK</span></div>
+      </aside>
+    </div>
+
+    <dialog class="story-dialog" id="story-dialog" aria-labelledby="dialog-title"><button class="dialog-close icon-button" id="dialog-close" type="button" aria-label="Close story"><i data-lucide="x"></i></button><span class="category-tag" id="dialog-category"></span><h2 id="dialog-title"></h2><p id="dialog-deck"></p><div class="dialog-byline" id="dialog-byline"></div><a class="dialog-source" id="dialog-source" href="#" target="_blank" rel="noreferrer">Read full article <i data-lucide="arrow-up-right"></i></a></dialog>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>
